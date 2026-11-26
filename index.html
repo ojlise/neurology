@@ -136,6 +136,10 @@ ol.refs a:hover{text-decoration:underline}
 .updlist time{font-size:13px;color:var(--muted);font-weight:600}
 .updlist b{display:block}
 .updlist a{color:var(--accent);font-size:13.5px;text-decoration:none;font-weight:500}
+.newb{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;padding:1px 6px;border-radius:999px;background:var(--amber);color:#fff;margin-left:6px;vertical-align:2px;font-family:inherit}
+.newb.big{font-size:12px;padding:3px 10px;vertical-align:6px;margin-left:12px;letter-spacing:0}
+.checked{font-size:13.5px;color:var(--muted);margin:0 0 16px}
+.checked a{color:var(--accent);text-decoration:none;font-weight:600}
 .disc{font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);margin-top:46px;padding-top:16px}
 .note{font-size:13px;color:var(--muted)}
 .match{font-size:12px;color:var(--accent);font-weight:600}
@@ -1466,9 +1470,50 @@ DD["autonomic-dysreflexia"]=[
 
 </script>
 <script>
-const AS_OF="November 21, 2026";
+/* ===== WEEKLY-UPDATES-START (edited by the Saturday update job; keep valid JavaScript) =====
+   SITE_UPDATED: date of the most recent update run (YYYY-MM-DD).
+   WATCH: pending decisions to watch, as [text, condition id or null]. The job may rewrite this list
+          (drop items once decided, add new pending FDA dates); it is the only list that may be edited.
+   WEEKLY: one object per change, appended over time; never delete or edit old entries.
+   Fields: added (YYYY-MM-DD, date of the run that added it), id (condition id, or null for site-wide news),
+   kind: "upd"  dated development for a condition: {date:"YYYY-MM-DD" (or "YYYY-MM"), text, ref}
+                (shown in the condition's Recent updates and in What's new),
+         "tx"   treatment bullet: {group: exact title of an existing treatment card, or a short new title, text, ref},
+         "ddx"  look-alike row: {row:[name, linked condition id or "", what's similar, how to tell apart], ref optional},
+         "ref"  reference only: {ref},
+         "news" item with no condition page: {id:null, date, title, text, href}.
+   ref is [title, url] of a page actually read. text is a plain sentence in your own words. */
+const SITE_UPDATED = "2026-11-25";
+const WATCH = [
+["Huntington's disease — AMT-130 gene therapy: FDA target date May 1, 2027","huntingtons"],
+["SCN2A/SCN8A developmental epileptic encephalopathies — relutrigine: FDA target date December 27, 2026",null],
+["Duchenne cardiomyopathy — deramiocel (cell therapy): decision pending as of this update","dmd"]
+];
+const WEEKLY = [];
+/* ===== WEEKLY-UPDATES-END ===== */
 const D={}, ORDER=[];
 AREAS.forEach(a=>a.subs.forEach(s=>s.diseases.forEach(d=>{d.area=a;d.sub=s;D[d.id]=d;ORDER.push(d);})));
+const MON=["Jan","Feb","Mar","Apr","May","June","July","Aug","Sept","Oct","Nov","Dec"];
+const fmtDate=s=>new Date(s+"T12:00:00Z").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric",timeZone:"UTC"});
+const AS_OF=new Date(SITE_UPDATED+"T12:00:00Z").toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric",timeZone:"UTC"});
+/* Merge weekly updates and mark what is new (NEW badge for 7 days from the latest check) */
+const dayNum=s=>Math.floor(Date.parse(s+"T12:00:00Z")/864e5);
+const isNew=w=>!!w.added&&dayNum(w.added)>=dayNum(SITE_UPDATED)-6;
+const NEW_TXT=new Set(), NEW_IDS=new Set();
+WEEKLY.forEach(w=>{
+  const d=w.id&&D[w.id]?D[w.id]:null, fresh=isNew(w);
+  if(w.kind==="news"||w.kind==="upd"){UPDATES.push([w.date,w.title||(d?d.name:"Neurology news"),w.text,d?d.id:"",w.href||(w.ref?w.ref[1]:""),fresh]);}
+  if(!d||w.kind==="news")return;
+  if(w.kind==="upd"){const p=w.date.split("-"),u=MON[+p[1]-1]+" "+p[0]+": "+w.text;d.upd=(d.upd||[]).concat(u);if(fresh)NEW_TXT.add(u);}
+  if(w.kind==="tx"){const t=w.group||"Recent additions",g=d.tx.find(x=>x[0]===t);g?g[1].push(w.text):d.tx.push([t,[w.text]]);if(fresh)NEW_TXT.add(w.text);}
+  if(w.kind==="ddx"&&w.row){DD[d.id]=(DD[d.id]||[]).concat([w.row]);if(fresh)NEW_TXT.add(w.row[0]);}
+  if(w.ref){d.refs.push(w.ref);if(fresh)NEW_TXT.add(w.ref[0]);}
+  if(fresh)NEW_IDS.add(d.id);
+});
+UPDATES.sort((a,b)=>String(b[0]).localeCompare(String(a[0])));
+const NEWB=`<span class="newb">NEW</span>`;
+const FRESH=WEEKLY.filter(isNew);
+function checkedLine(){return `<p class="checked">Checked for new approvals, guidelines and treatments: <b>${fmtDate(SITE_UPDATED)}</b>${FRESH.length?` · <a href="#updates">${FRESH.length} new item${FRESH.length===1?"":"s"} this week ${NEWB}</a>`:" · no changes found in the latest check"}</p>`;}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const view=$("#view");
@@ -1477,8 +1522,8 @@ const view=$("#view");
 function buildSide(){
   let h='<h4>Areas of neurology</h4>';
   AREAS.forEach(a=>{
-    h+=`<div class="tarea" data-a="${a.id}"><button data-toggle="${a.id}"><span class="dot" style="background:${a.color}"></span>${esc(a.short)}<span class="chev">▶</span></button><div class="tsub"><a href="#a-${a.id}" style="font-weight:600">Overview</a>`;
-    a.subs.forEach(s=>{h+=`<div class="sl">${esc(s.name)}</div>`;s.diseases.forEach(d=>{h+=`<a href="#d-${d.id}" data-d="${d.id}">${esc(d.name)}</a>`;});});
+    h+=`<div class="tarea" data-a="${a.id}"><button data-toggle="${a.id}"><span class="dot" style="background:${a.color}"></span>${esc(a.short)}${a.subs.some(s=>s.diseases.some(d=>NEW_IDS.has(d.id)))?NEWB:""}<span class="chev">▶</span></button><div class="tsub"><a href="#a-${a.id}" style="font-weight:600">Overview</a>`;
+    a.subs.forEach(s=>{h+=`<div class="sl">${esc(s.name)}</div>`;s.diseases.forEach(d=>{h+=`<a href="#d-${d.id}" data-d="${d.id}">${esc(d.name)}${NEW_IDS.has(d.id)?NEWB:""}</a>`;});});
     h+='</div></div>';
   });
   $("#side").innerHTML=h;
@@ -1498,9 +1543,9 @@ function markSide(areaId,dId){
 }
 
 /* ---------- Helpers ---------- */
-const list=(arr)=>`<ul class="clean">${arr.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+const list=(arr)=>`<ul class="clean">${arr.map(x=>`<li>${esc(x)}${NEW_TXT.has(x)?NEWB:""}</li>`).join("")}</ul>`;
 function dcard(d,extra=""){
-  return `<a class="card dcard" href="#d-${d.id}" style="--c:${d.area.color}"><b>${esc(d.name)}</b><p>${esc(d.ov)}</p>${d.upd?'<span class="badge">Updated 2025–26</span>':""}${extra}</a>`;
+  return `<a class="card dcard" href="#d-${d.id}" style="--c:${d.area.color}"><b>${esc(d.name)}${NEW_IDS.has(d.id)?NEWB:""}</b><p>${esc(d.ov)}</p>${d.upd?'<span class="badge">Updated 2025–26</span>':""}${extra}</a>`;
 }
 function setTitle(t){document.title=t?t+" — NeuroAtlas":"NeuroAtlas — An Interactive Guide to Neurology";}
 function disclaimer(){return `<div class="disc"><b>Educational resource, not medical advice.</b> Content summarizes published guidelines and regulatory news as of ${AS_OF}. Treatments, doses and approvals change, and choices depend on the individual — always consult a qualified clinician. If you think someone is having a stroke, seizure lasting over 5 minutes, or other emergency, call 911 (or your local emergency number).</div>`;}
@@ -1514,14 +1559,14 @@ function home(){
   setTitle(""); markSide(null,null);
   const nUpd=ORDER.filter(d=>d.upd).length;
   let h=`<section class="hero"><h1>Neurology, area by area</h1><p class="lede">Explore the major fields of neurology, drill into sub-areas and individual conditions, and see each disease's symptoms, early warning signs, diagnosis and current treatments — with references to guidelines and primary sources.</p>
-  <div class="stats"><div class="stat"><b>${AREAS.length}</b><span>major areas</span></div><div class="stat"><b>${AREAS.reduce((n,a)=>n+a.subs.length,0)}</b><span>sub-areas</span></div><div class="stat"><b>${ORDER.length}</b><span>conditions</span></div><div class="stat"><b>${nUpd}</b><span>with 2025–26 updates</span></div></div></section>`;
+  <div class="stats"><div class="stat"><b>${AREAS.length}</b><span>major areas</span></div><div class="stat"><b>${AREAS.reduce((n,a)=>n+a.subs.length,0)}</b><span>sub-areas</span></div><div class="stat"><b>${ORDER.length}</b><span>conditions</span></div><div class="stat"><b>${nUpd}</b><span>with 2025–26 updates</span></div></div></section>`+checkedLine();
   h+=befast();
   h+=`<div class="subhead"><h2>Major areas</h2><span>Select an area to drill down</span></div><div class="grid">`;
   AREAS.forEach(a=>{const n=a.subs.reduce((k,s)=>k+s.diseases.length,0);h+=`<a class="card acard" href="#a-${a.id}" style="--c:${a.color}"><b>${esc(a.name)}</b><p>${esc(a.blurb)}</p><span class="n">${a.subs.length} sub-areas · ${n} conditions →</span></a>`;});
   h+=`</div><div class="subhead"><h2>What's new</h2><span>Recent guideline changes and FDA actions</span></div><div class="card updlist">${UPDATES.slice(0,4).map(updRow).join("")}<p style="margin:10px 0 0"><a href="#updates" style="color:var(--accent);font-weight:600;text-decoration:none">See all updates →</a></p></div>`;
   h+=disclaimer(); view.innerHTML=h;
 }
-function updRow(u){const d=D[u[3]];const dt=new Date(u[0]+"T12:00:00");return `<div class="u"><time>${dt.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</time><div><b>${esc(u[1])}</b>${esc(u[2])}${d?` <a href="#d-${d.id}">Open ${esc(d.name)} →</a>`:""}</div></div>`;}
+function updRow(u){const d=D[u[3]],ds=String(u[0]),p=ds.split("-");const t=p.length>2?fmtDate(ds):MON[+p[1]-1]+" "+p[0];return `<div class="u"><time>${t}</time><div><b>${esc(u[1])}${u[5]?NEWB:""}</b>${esc(u[2])}${d?` <a href="#d-${d.id}">Open ${esc(d.name)} →</a>`:u[4]?` <a href="${esc(u[4])}" target="_blank" rel="noopener">Source ↗</a>`:""}</div></div>`;}
 
 function area(a){
   setTitle(a.name); markSide(a.id,null);
@@ -1538,16 +1583,16 @@ function disease(d){
   if(d.red)secs.push(["red","Red flags"]);
   secs.push(["dx","Diagnosis"]); if(DD[d.id])secs.push(["dd","Differential diagnosis"]); secs.push(["tx","Treatment"]); if(d.upd)secs.push(["upd","Recent updates"]); secs.push(["refs","References"]);
   let h=`<div class="crumbs"><a href="#home">Home</a>›<a href="#a-${a.id}">${esc(a.name)}</a>›<span>${esc(d.sub.name)}</span></div>`;
-  h+=`<div style="--c:${a.color}"><h1>${esc(d.name)}</h1>${d.aka?`<p class="aka">Also called: ${esc(d.aka)}</p>`:""}`;
+  h+=`<div style="--c:${a.color}"><h1>${esc(d.name)}${NEW_IDS.has(d.id)?`<span class="newb big">Updated ${fmtDate(SITE_UPDATED)}</span>`:""}</h1>${d.aka?`<p class="aka">Also called: ${esc(d.aka)}</p>`:""}`;
   h+=`<div class="toc">${secs.map(s=>`<a href="#d-${d.id}" data-jump="x-${s[0]}">${s[1]}</a>`).join("")}</div>`;
   h+=`<p class="lede sec" id="x-ov" style="color:var(--ink);margin-top:16px">${esc(d.ov)}</p>`;
   h+=`<div class="two"><div class="card sec" id="x-sx"><h3>Symptoms</h3>${list(d.sx)}</div><div class="card k-early sec" id="x-early"><h3>Early signs &amp; warning clues</h3>${list(d.early)}</div></div>`;
   if(d.red)h+=`<div class="card k-red sec" id="x-red" style="margin-top:14px"><h3>⚠ Red flags — seek urgent care</h3>${list(d.red)}</div>`;
   h+=`<h2 class="sec" id="x-dx">Diagnosis</h2><div class="card">${list(d.dx)}</div>`;
-  if(DD[d.id])h+=`<h2 class="sec" id="x-dd">Differential diagnosis: look-alikes</h2><p class="note" style="margin:-4px 0 10px">Conditions that can be confused with ${esc(d.name)}, what they share, and the clues that tell them apart.</p><div class="card ddt"><div class="ddrow head"><div>Look-alike</div><div>What's similar</div><div>How to tell them apart</div></div>${DD[d.id].map(r=>`<div class="ddrow"><div class="nm">${r[1]&&D[r[1]]?`<a href="#d-${r[1]}">${esc(r[0])} →</a>`:esc(r[0])}</div><div class="sim"><span class="lab">Similar</span>${esc(r[2])}</div><div><span class="lab">Key differences</span>${esc(r[3])}</div></div>`).join("")}</div>`;
+  if(DD[d.id])h+=`<h2 class="sec" id="x-dd">Differential diagnosis: look-alikes</h2><p class="note" style="margin:-4px 0 10px">Conditions that can be confused with ${esc(d.name)}, what they share, and the clues that tell them apart.</p><div class="card ddt"><div class="ddrow head"><div>Look-alike</div><div>What's similar</div><div>How to tell them apart</div></div>${DD[d.id].map(r=>`<div class="ddrow"><div class="nm">${r[1]&&D[r[1]]?`<a href="#d-${r[1]}">${esc(r[0])} →</a>`:esc(r[0])}${NEW_TXT.has(r[0])?NEWB:""}</div><div class="sim"><span class="lab">Similar</span>${esc(r[2])}</div><div><span class="lab">Key differences</span>${esc(r[3])}</div></div>`).join("")}</div>`;
   h+=`<h2 class="sec" id="x-tx">Treatment &amp; medications</h2><div class="card tx">${d.tx.map(g=>`<div class="txg"><h3>${esc(g[0])}</h3>${list(g[1])}</div>`).join("")}<p class="note" style="margin:6px 0 0">Medication choice, dosing and monitoring must be individualized by a clinician; brand names are given for recognition only.</p></div>`;
   if(d.upd)h+=`<h2 class="sec" id="x-upd">Recent updates</h2><div class="card k-upd"><h3>2025–2026 developments</h3>${list(d.upd)}</div>`;
-  h+=`<h2 class="sec" id="x-refs">References</h2><div class="card"><ol class="refs">${d.refs.map(r=>`<li><a href="${esc(r[1])}" target="_blank" rel="noopener">${esc(r[0])}</a> <span class="ext">↗</span></li>`).join("")}</ol><p class="note" style="margin:10px 0 0">Journal citations link to PubMed (NIH). Statements on 2025–26 approvals link to FDA or news reports.</p></div>`;
+  h+=`<h2 class="sec" id="x-refs">References</h2><div class="card"><ol class="refs">${d.refs.map(r=>`<li><a href="${esc(r[1])}" target="_blank" rel="noopener">${esc(r[0])}</a> <span class="ext">↗</span>${NEW_TXT.has(r[0])?NEWB:""}</li>`).join("")}</ol><p class="note" style="margin:10px 0 0">Journal citations link to PubMed (NIH). Statements on 2025–26 approvals link to FDA or news reports.</p></div>`;
   const sib=d.sub.diseases.filter(x=>x!==d);
   if(sib.length)h+=`<h2>Related in ${esc(d.sub.name)}</h2><div class="grid">${sib.map(x=>dcard(x)).join("")}</div>`;
   h+=`<div class="pager">${prev?`<a class="card" href="#d-${prev.id}"><small>← Previous</small><b>${esc(prev.name)}</b></a>`:"<span></span>"}${next?`<a class="card" href="#d-${next.id}" style="text-align:right"><small>Next →</small><b>${esc(next.name)}</b></a>`:"<span></span>"}</div></div>`;
@@ -1577,8 +1622,10 @@ function drawSym(){
 
 function updates(){
   setTitle("What's new"); markSide(null,null);
-  view.innerHTML=`<div class="crumbs"><a href="#home">Home</a>›<span>What's new</span></div><h1>What's new in neurology</h1><p class="lede">Major guideline changes and FDA actions from 2025–2026 that are reflected on this site, newest first.</p><div class="card updlist">${UPDATES.map(updRow).join("")}</div>
-  <h2>Pending decisions to watch</h2><div class="card">${list(["Huntington's disease — AMT-130 gene therapy: FDA target date May 1, 2027","SCN2A/SCN8A developmental epileptic encephalopathies — relutrigine: FDA target date December 27, 2026","Duchenne cardiomyopathy — deramiocel (cell therapy): decision pending as of this update"])}</div>`+disclaimer();
+  const label={upd:"Update",tx:"Treatment",ddx:"Look-alike",ref:"Reference",news:"News"};
+  const fresh=`<div class="card k-upd" style="margin:6px 0 10px"><h3>Latest weekly check: ${fmtDate(SITE_UPDATED)}</h3>${FRESH.length?`<ul class="clean">${FRESH.map(w=>{const d=w.id&&D[w.id];return `<li><b>${label[w.kind]||"Update"}</b>${d?` · <a href="#d-${d.id}" style="color:var(--accent);text-decoration:none">${esc(d.name)}</a>`:""}: ${esc(w.kind==="ddx"?w.row[0]+" added as a look-alike":w.text||(w.ref?w.ref[0]:""))} ${NEWB}</li>`;}).join("")}</ul>`:`<p style="margin:0;color:var(--muted)">No new approvals, guideline changes, or treatments were found since the previous check.</p>`}</div>`;
+  view.innerHTML=`<div class="crumbs"><a href="#home">Home</a>›<span>What's new</span></div><h1>What's new in neurology</h1><p class="lede">Guideline changes, FDA actions and new treatment evidence reflected on this site, newest first. The site is checked every week.</p>${fresh}<div class="card updlist">${UPDATES.map(updRow).join("")}</div>
+  <h2>Pending decisions to watch</h2><div class="card">${WATCH.length?`<ul class="clean">${WATCH.map(([t,id])=>`<li>${esc(t)}${id&&D[id]?` <a href="#d-${id}" style="color:var(--accent);text-decoration:none">Open →</a>`:""}</li>`).join("")}</ul>`:`<p style="margin:0;color:var(--muted)">None at the moment.</p>`}</div>`+disclaimer();
 }
 
 function about(){
@@ -1586,7 +1633,7 @@ function about(){
   view.innerHTML=`<div class="crumbs"><a href="#home">Home</a>›<span>About &amp; sources</span></div><h1>About &amp; sources</h1><p class="lede">NeuroAtlas is an educational overview of clinical neurology for curious readers, patients, families and students.</p>
   <div class="card"><h3>How the content was built</h3>${list([
   "Each condition summarizes current society guidelines (AAN, AHA/ASA, AHS, AASM, EAN/PNS, IDSA, AES and others), landmark trials and authoritative patient resources (NIH MedlinePlus, NINDS).",
-  "Regulatory changes through "+AS_OF+" were checked against FDA announcements and specialist news reports; each is dated in the 'Recent updates' sections.",
+  "The site is checked every week for new FDA actions, guideline changes and treatment evidence (latest check: "+AS_OF+"); each change is dated in the 'Recent updates' sections, and items added in the latest check carry a NEW badge.",
   "Each condition page has a differential-diagnosis table comparing it with its common look-alikes, with links when the look-alike has its own page.",
   "Every condition page lists its references. Guideline and trial citations open a PubMed search for the exact title, which keeps the link working even if a publisher's URL changes.",
   "Symptoms and treatments are deliberately summarized; they are not complete prescribing information or a substitute for a clinical evaluation."])}</div>
