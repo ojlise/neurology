@@ -184,6 +184,8 @@ ol.refs a:hover{text-decoration:underline}
     <a href="#symptoms" data-v="symptoms">Symptom finder</a>
     <a href="#updates" data-v="updates">What's new</a>
     <a href="#about" data-v="about">About &amp; sources</a>
+    <a href="#learn" data-v="learn">Learning center</a>
+    <a href="#clinical" data-v="clinical">Clinical &amp; research</a>
   </nav>
   <div class="search">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -1562,6 +1564,11 @@ function home(){
   let h=`<section class="hero"><h1>Neurology, area by area</h1><p class="lede">Explore the major fields of neurology, drill into sub-areas and individual conditions, and see each disease's symptoms, early warning signs, diagnosis and current treatments — with references to guidelines and primary sources.</p>
   <div class="stats"><div class="stat"><b>${AREAS.length}</b><span>major areas</span></div><div class="stat"><b>${AREAS.reduce((n,a)=>n+a.subs.length,0)}</b><span>sub-areas</span></div><div class="stat"><b>${ORDER.length}</b><span>conditions</span></div><div class="stat"><b>${nUpd}</b><span>with 2025–26 updates</span></div></div></section>`+checkedLine();
   h+=befast();
+  h+=`<div class="subhead"><h2>Explore the nervous system</h2><span>Two levels of depth · public and professional</span></div>
+  <div class="grid">
+    <a class="card acard" href="#learn" style="--c:#1971c2"><b>Learning center</b><p>Brain anatomy, neural signaling, neuroimmune biology, pain pathways and brain networks. Start with plain-language explanations and expand into scientific detail.</p><span class="n">Foundations &amp; interactive learning →</span></a>
+    <a class="card acard" href="#clinical" style="--c:#2b8a3e"><b>Clinical &amp; research library</b><p>Diagnostic tests, medication principles, clinical guidelines, emerging therapies, trials and condition coverage priorities.</p><span class="n">Clinical tools &amp; research →</span></a>
+  </div>`;
   h+=`<div class="subhead"><h2>Major areas</h2><span>Select an area to drill down</span></div><div class="grid">`;
   AREAS.forEach(a=>{const n=a.subs.reduce((k,s)=>k+s.diseases.length,0);h+=`<a class="card acard" href="#a-${a.id}" style="--c:${a.color}"><b>${esc(a.name)}</b><p>${esc(a.blurb)}</p><span class="n">${a.subs.length} sub-areas · ${n} conditions →</span></a>`;});
   h+=`</div><div class="subhead"><h2>What's new</h2><span>Recent guideline changes and FDA actions</span></div><div class="card updlist">${UPDATES.slice(0,4).map(updRow).join("")}<p style="margin:10px 0 0"><a href="#updates" style="color:var(--accent);font-weight:600;text-decoration:none">See all updates →</a></p></div>`;
@@ -1642,6 +1649,112 @@ function about(){
   <h2>Using this site</h2><div class="card">${list(["Browse areas in the left panel (tap ☰ on phones) and expand an area to see its sub-areas and conditions.","Press / to jump to search; search covers names, symptoms, early signs, tests and drug names.","Use the Symptom finder to see conditions sharing a set of symptoms."])}</div>`+disclaimer();
 }
 
+
+/* ---------- Learning center: anatomy, physiology and mechanisms ---------- */
+const LEARN_MODULES=[
+ {id:"anatomy",title:"Neuroanatomy & brain networks",intro:"The nervous system is organized into connected structures. A symptom's pattern can help clinicians localize which pathway may be affected.",plain:"Think of the brain as a network of specialized neighborhoods connected by high-speed routes. A problem in one place can affect movement, sensation, language, vision, memory or balance.",detail:"Clinical localization combines the time course, distribution and character of deficits with examination findings. Lesions may involve cortex, deep nuclei, brainstem, cerebellum, spinal cord, roots, plexuses, peripheral nerves, neuromuscular junction or muscle.",topics:["Cerebral cortex: frontal, parietal, temporal and occipital functions","Basal ganglia and thalamocortical motor loops","Cerebellar coordination and error correction","Brainstem pathways and cranial nerve nuclei","Spinal cord tracts: corticospinal, dorsal column and spinothalamic","Peripheral nerves, roots, plexuses and neuromuscular junction","Limbic circuits, memory and emotion"]},
+ {id:"physiology",title:"Neurophysiology & neural signaling",intro:"Neurons communicate through electrical impulses and chemical synapses; networks adapt through plasticity.",plain:"Neurons receive information, decide whether to fire, and pass messages to other cells. Supporting cells keep the environment stable and help signals travel efficiently.",detail:"Action potentials depend on voltage-gated ion channels. Synaptic transmission involves presynaptic release, receptor activation and transmitter clearance. Long-term potentiation and depression alter synaptic strength and contribute to learning and memory.",topics:["Resting membrane potential and action potentials","Synaptic vesicles, receptors and reuptake","Glutamate and GABA balance","Dopamine, serotonin, acetylcholine and noradrenaline systems","Myelin, oligodendrocytes and saltatory conduction","Astrocytes, microglia and metabolic support","Neuroplasticity, learning and network adaptation"]},
+ {id:"neuroimmune",title:"Neuroinflammation & neuroimmunology",intro:"Immune activity can protect the nervous system, but dysregulated or persistent inflammation can injure neural tissue.",plain:"The brain and spinal cord have specialized immune defenses. In some illnesses, immune cells or antibodies mistakenly target nerves, myelin, blood vessels or brain tissue.",detail:"Microglia and astrocytes coordinate innate immune responses. The blood–brain and blood–CSF barriers regulate trafficking. Adaptive immune mechanisms include T-cell and B-cell responses, autoantibodies and intrathecal antibody production. Inflammation is context-dependent and is not synonymous with infection or autoimmunity.",topics:["Microglia, astrocytes and cytokine signaling","Blood–brain barrier and blood–CSF barrier","Multiple sclerosis, MOGAD and NMOSD","Autoimmune encephalitis and paraneoplastic syndromes","CNS vasculitis, neurosarcoidosis and neuroinfection","Complement, antibodies and targeted immunotherapies","Neurodegeneration-associated inflammation: what is known and uncertain"]},
+ {id:"pain",title:"Pain pathways & sensory processing",intro:"Pain is an experience shaped by peripheral input, spinal processing, brain networks and context.",plain:"Pain can arise from irritated or damaged nerves, injured tissues, or changes in how the nervous system processes signals. Similar symptoms can have different causes.",detail:"Nociceptive, neuropathic and nociplastic mechanisms overlap. Peripheral sensitization, dorsal horn plasticity, descending modulation and central network changes influence pain intensity and persistence.",topics:["Nociceptors and peripheral sensitization","Dorsal root ganglia and spinal dorsal horn","Spinothalamic and trigeminothalamic pathways","Descending pain modulation","Small-fiber neuropathy and large-fiber neuropathy","Central sensitization and nociplastic pain","Trigeminal neuralgia, occipital neuralgia and CRPS"]},
+ {id:"neurovascular",title:"Neurovascular biology",intro:"Neural function depends on tightly regulated blood flow, vessel integrity and energy delivery.",plain:"Brain cells need a constant supply of oxygen and glucose. Blood vessels also help regulate the brain's environment and remove waste products.",detail:"Neurovascular coupling links neuronal activity to local perfusion. Small-vessel disease, endothelial dysfunction, amyloid angiopathy and impaired autoregulation contribute to distinct clinical syndromes.",topics:["Cerebral autoregulation and neurovascular coupling","Endothelium, pericytes and the neurovascular unit","Cerebral small-vessel disease and lacunar infarction","Cerebral amyloid angiopathy","Moyamoya disease and intracranial stenosis","CNS vasculitis and reversible cerebral vasoconstriction","Vascular contributions to cognitive impairment"]},
+ {id:"degeneration",title:"Neurodegeneration, proteins & cellular energy",intro:"Many degenerative disorders involve interacting processes rather than one isolated cause.",plain:"Some diseases involve proteins folding incorrectly or collecting inside or around brain cells. Other processes—energy failure, inflammation and impaired waste clearance—may also contribute.",detail:"Disease-associated proteins include amyloid-β, tau, α-synuclein, TDP-43 and huntingtin. Mitochondrial dysfunction, lysosomal-autophagy pathways, axonal transport and selective neuronal vulnerability are active research areas; causal relationships vary by disease.",topics:["Amyloid-β and tau in Alzheimer disease","α-synuclein in Parkinson disease and related synucleinopathies","TDP-43 and frontotemporal lobar degeneration / ALS","Huntingtin and polyglutamine disorders","Mitochondria, oxidative stress and neuronal energy demand","Autophagy, lysosomes and protein clearance","Axonal transport, synaptic loss and selective vulnerability"]}
+];
+function learningCenter(){
+ setTitle("Learning center");markSide(null,null);
+ const moduleCards=LEARN_MODULES.map(m=>\`<a class="card" href="#learn-\${m.id}" style="text-decoration:none"><b>\${esc(m.title)}</b><p class="note">\${esc(m.intro)}</p><span class="match">Explore topic →</span></a>\`).join("");
+ let h=\`<div class="crumbs"><a href="#home">Home</a>›<span>Learning center</span></div><h1>Learning center</h1><p class="lede">Understand the nervous system from first principles. Every topic starts with a plain-language explanation and then offers a deeper scientific view.</p>
+ <div class="card k-upd"><h3>Choose your level</h3><p><b>Foundations:</b> begin with the everyday explanation and key concepts. <b>Scientific depth:</b> continue into pathways, cellular mechanisms and clinical relevance. Both levels are shown together so readers can move between them.</p></div>
+ <div class="subhead"><h2>Core subjects</h2><span>\${LEARN_MODULES.length} interconnected modules</span></div><div class="grid">\${moduleCards}</div>
+ <h2>Interactive symptom-to-anatomy explorer</h2><p class="note">Choose a symptom pattern to see broad nervous-system locations clinicians may consider. This is a learning aid, not a diagnostic tool.</p>
+ <div class="card"><label for="localize" style="font-weight:600;display:block;margin-bottom:8px">Symptom pattern</label><select id="localize" class="chip" style="max-width:100%;border-radius:8px"><option value="weak">One-sided weakness</option><option value="numb">Numbness or tingling</option><option value="vision">Vision change</option><option value="balance">Imbalance or poor coordination</option><option value="memory">Memory or behavior change</option><option value="pain">Burning or electric pain</option></select><div id="localize-result" style="margin-top:14px" aria-live="polite"></div></div>\`;
+ LEARN_MODULES.forEach(m=>{h+=\`<section class="card sec" id="learn-\${m.id}" style="margin-top:14px"><h2 style="margin-top:0">\${esc(m.title)}</h2><p class="lede">\${esc(m.intro)}</p><h3>In plain language</h3><p>\${esc(m.plain)}</p><details><summary style="cursor:pointer;font-weight:600;color:var(--accent);padding:8px 0">Scientific depth</summary><p>\${esc(m.detail)}</p></details><h3 style="margin-top:14px">Key topics</h3>\${list(m.topics)}</section>\`;});
+ h+=\`<h2>How the topics connect</h2><div class="card"><p><b>Anatomy</b> describes where a process occurs; <b>physiology</b> explains normal function; <b>pathophysiology</b> describes what changes in disease; <b>symptoms and examination</b> reveal the resulting pattern; <b>diagnostics</b> test possible explanations; and <b>treatment</b> targets a cause, mechanism or consequence.</p><p class="note">Scientific explanations evolve. Mechanisms described as emerging or uncertain should not be interpreted as established causes or proven treatment targets.</p></div>\`+disclaimer();
+ view.innerHTML=h;drawLocalizer();
+ $("#localize").addEventListener("change",drawLocalizer);
+}
+function drawLocalizer(){
+ const el=$("#localize-result");if(!el)return;
+ const map={
+ weak:["Motor pathways: primary motor cortex, internal capsule, brainstem, corticospinal tract, spinal cord, nerve roots, peripheral nerves, neuromuscular junction or muscle.","Sudden one-sided weakness can indicate stroke. Treat sudden onset as an emergency and call 911."],
+ numb:["Sensory cortex, thalamus, spinal sensory tracts, nerve roots, plexuses or peripheral nerves. Distribution (one side, a level, a named nerve or stocking-glove) helps localize.","Sudden numbness, especially with weakness, speech or vision changes, needs emergency assessment."],
+ vision:["Retina and optic nerve, optic chiasm and tracts, occipital cortex, ocular motor nerves or brainstem gaze pathways.","Sudden vision loss or new double vision can be urgent; sudden visual loss warrants emergency evaluation."],
+ balance:["Vestibular apparatus and nerve, brainstem vestibular nuclei, cerebellum, proprioceptive sensory pathways, vision and motor systems.","Sudden severe imbalance with other neurological symptoms can be a stroke warning."],
+ memory:["Hippocampal and medial temporal networks, frontal-subcortical circuits, parietal association cortex and distributed networks.","Acute confusion or abrupt change in mental status requires prompt medical evaluation; sudden onset can be an emergency."],
+ pain:["Peripheral nociceptors, small or large sensory fibers, dorsal root ganglia, spinal cord, trigeminal pathways and central pain-modulating networks.","New severe headache, thunderclap headache, fever with stiff neck, or pain with new weakness requires urgent evaluation."]
+ };
+ const x=map[$("#localize").value];el.innerHTML=\`<b>Possible anatomical systems</b><p>\${esc(x[0])}</p><div class="emerg" style="margin-bottom:0"><b>Safety note</b><p style="margin:6px 0 0">\${esc(x[1])}</p></div>\`;
+}
+
+/* ---------- Clinical, diagnostic and research center ---------- */
+const TESTS=[
+ ["MRI brain and spine","Structural imaging for tumors, inflammation, demyelination, infarction and spinal pathology. Sequences and contrast depend on the clinical question."],
+ ["CT and CT angiography","Rapid assessment for hemorrhage, trauma and selected vascular conditions; CTA visualizes arteries and may identify large-vessel occlusion."],
+ ["EEG and video EEG","Records cortical electrical activity; supports seizure evaluation and classification. A normal routine EEG does not exclude epilepsy."],
+ ["EMG and nerve conduction studies","Evaluate peripheral nerve, motor neuron, neuromuscular junction and muscle disorders; results must be interpreted with history and examination."],
+ ["Lumbar puncture and CSF","Measures opening pressure when appropriate and analyzes cells, protein, glucose, cultures, oligoclonal bands and selected antibodies or biomarkers."],
+ ["PET and molecular imaging","Selected tracers can assess metabolism, amyloid or tau, dopaminergic pathways and other targets; availability and clinical indications vary."],
+ ["Autonomic function testing","May include tilt-table testing, heart-rate variability, Valsalva and sudomotor tests for selected autonomic symptoms."],
+ ["Sleep studies","Polysomnography and home sleep apnea testing answer different questions; actigraphy and multiple sleep latency testing are used in selected cases."],
+ ["Neuropsychological assessment","Standardized assessment of memory, attention, language, executive function, mood and other cognitive domains."],
+ ["Evoked potentials","Measure timed responses to sensory stimulation and can help evaluate selected visual, auditory or somatosensory pathways."]
+];
+const DRUG_CLASSES=[
+ ["Antiseizure medicines","Examples include levetiracetam, lamotrigine and valproate. Choice depends on seizure type, comorbidities, pregnancy potential, interactions and adverse-effect profile."],
+ ["Parkinson therapies","Levodopa-based treatment, dopamine agonists, MAO-B inhibitors and other agents address selected motor or non-motor symptoms; benefits and risks differ."],
+ ["Migraine therapies","Acute options include selected NSAIDs, triptans and gepants; prevention may include beta blockers, topiramate, CGRP-targeted therapies and other options."],
+ ["Multiple sclerosis disease-modifying therapies","A broad range of immunomodulatory and immunosuppressive agents reduce relapse activity or new lesions in selected MS phenotypes; monitoring is therapy-specific."],
+ ["Neuromuscular immunotherapies","Corticosteroids, IVIG, plasma exchange and targeted biologics are used in selected autoimmune nerve, junction or muscle disorders."],
+ ["Stroke prevention medicines","Antiplatelets, anticoagulants, lipid-lowering agents and antihypertensives are selected according to stroke mechanism and individual risk."],
+ ["Dementia therapies","Symptomatic treatments and, for eligible patients in some jurisdictions, disease-modifying anti-amyloid therapies require careful diagnosis, selection and monitoring."],
+ ["Neuropathic pain medicines","Selected antidepressants, gabapentinoids and topical agents may help particular pain syndromes; effectiveness and tolerability vary."]
+];
+const COVERAGE=[
+ ["Neurodegenerative","Frontotemporal dementia; progressive supranuclear palsy; corticobasal syndrome; multiple system atrophy; Huntington disease; essential tremor and dystonia."],
+ ["Neuroimmunology","MOG antibody-associated disease (MOGAD); neuromyelitis optica spectrum disorder (NMOSD); autoimmune encephalitis; neurosarcoidosis; CNS vasculitis."],
+ ["Peripheral nerve and muscle","Small-fiber neuropathy; CIDP; Charcot–Marie–Tooth disease; myasthenia gravis; inflammatory myopathies; motor neuron disease."],
+ ["Pain and sensory","Trigeminal neuralgia; occipital neuralgia; complex regional pain syndrome; central sensitization and nociplastic pain."],
+ ["Neurovascular","Cerebral small-vessel disease; cerebral amyloid angiopathy; moyamoya disease; reversible cerebral vasoconstriction syndrome."],
+ ["Sleep and pediatric neurology","Idiopathic hypersomnia; circadian rhythm disorders; pediatric epilepsy; neurodevelopmental and genetic neurological conditions."]
+];
+const RESEARCH=[
+ ["Cell and gene therapies","Gene replacement, gene editing, antisense oligonucleotides and RNA-targeted approaches for selected inherited neurological diseases."],
+ ["Immune-cell and antibody therapies","CAR-T and other engineered immune-cell approaches, monoclonal antibodies and precision immunotherapies; many neurological applications remain investigational."],
+ ["Neuroregeneration and remyelination","Strategies to protect axons, restore myelin, support neural repair and replace selected cell populations."],
+ ["Neurotechnology","Deep-brain stimulation advances, responsive stimulation, neural interfaces and brain–computer interfaces."],
+ ["Blood and imaging biomarkers","Research into blood-based markers, molecular imaging and earlier, more biologically specific diagnosis."],
+ ["Microbiome–brain research","Studies of gut microbial metabolites, immune signaling and neural pathways; associations do not establish causation or clinical benefit."],
+ ["AI in neurology","Decision support, imaging analysis, digital biomarkers and prediction models; external validation, bias and clinical utility remain essential."],
+ ["Clinical trials","Use ClinicalTrials.gov to check current recruitment, eligibility, phase, locations and study contacts; status can change."]
+];
+function clinicalCenter(){
+ setTitle("Clinical & research");markSide(null,null);
+ let h=\`<div class="crumbs"><a href="#home">Home</a>›<span>Clinical &amp; research</span></div><h1>Clinical &amp; research library</h1><p class="lede">A practical companion to the disease encyclopedia: how neurological conditions are investigated, how treatment classes work, and where to follow emerging evidence.</p>
+ <div class="card k-early"><h3>Clinical-use note</h3><p>These summaries are educational, not prescribing guidance. Test selection and medication decisions depend on the clinical question, individual history and current professional guidance. Drug examples are not endorsements.</p></div>
+ <h2>Neurological diagnostic tests</h2><div class="grid">\${TESTS.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
+ <h2>Medication and treatment classes</h2><p class="note">A mechanism-oriented overview, not a complete formulary. Check current labeling, contraindications, monitoring and local approvals.</p><div class="grid">\${DRUG_CLASSES.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
+ <h2>Disease coverage expansion checklist</h2><p class="note">These are priority topics to verify and develop as dedicated, referenced entries in the disease encyclopedia. Their listing here does not imply that every entry is already present.</p><div class="grid">\${COVERAGE.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
+ <h2>Emerging therapies &amp; research themes</h2><div class="grid">\${RESEARCH.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
+ <h2>Research and guideline sources</h2><div class="card"><ul class="clean">
+ <li><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed</a> — biomedical literature and clinical research.</li>
+ <li><a href="https://clinicaltrials.gov/" target="_blank" rel="noopener">ClinicalTrials.gov</a> — registered studies and trial status.</li>
+ <li><a href="https://www.ninds.nih.gov/health-information" target="_blank" rel="noopener">NINDS</a> — neurological conditions and research information.</li>
+ <li><a href="https://medlineplus.gov/neurologicdiseases.html" target="_blank" rel="noopener">MedlinePlus</a> — accessible patient and family education.</li>
+ <li><a href="https://www.aan.com/Guidelines" target="_blank" rel="noopener">American Academy of Neurology guidelines</a> — evidence-based clinical guidance.</li>
+ <li><a href="https://www.aan.com/Tools/Clinical-Trials" target="_blank" rel="noopener">AAN clinical trial resources</a> — neurology research resources.</li>
+ <li><a href="https://www.fda.gov/drugs" target="_blank" rel="noopener">FDA drug information</a> — regulatory and labeling updates.</li>
+ </ul><p class="note">For every disease entry, the long-term editorial standard should include a last-reviewed date, evidence level, guideline date, regulatory status and direct primary references. Clinical trial recruitment status should always be checked at the source.</p></div>
+ <h2>Interactive disease comparison</h2><p class="note">Compare two conditions already in the NeuroAtlas database. The comparison summarizes their descriptions and symptom lists; it is not a diagnostic ranking.</p>
+ <div class="card"><div class="two"><div><label for="compare-a" style="font-weight:600;display:block">First condition</label><select id="compare-a" class="chip" style="width:100%;border-radius:8px">\${ORDER.map(d=>\`<option value="\${d.id}">\${esc(d.name)}</option>\`).join("")}</select></div><div><label for="compare-b" style="font-weight:600;display:block">Second condition</label><select id="compare-b" class="chip" style="width:100%;border-radius:8px">\${ORDER.map((d,i)=>\`<option value="\${d.id}" \${i===1?"selected":""}>\${esc(d.name)}</option>\`).join("")}</select></div></div><div id="compare-result" style="margin-top:14px" aria-live="polite"></div></div>\`+disclaimer();
+ view.innerHTML=h;drawComparison();
+ $("#compare-a").addEventListener("change",drawComparison);$("#compare-b").addEventListener("change",drawComparison);
+}
+function drawComparison(){
+ const el=$("#compare-result");if(!el)return;
+ const a=D[$("#compare-a").value],b=D[$("#compare-b").value];if(!a||!b)return;
+ const col=(d)=>\`<div class="card"><h3>\${esc(d.name)}</h3><p>\${esc(d.ov)}</p><b>Common symptoms described</b>\${list(d.sx.slice(0,8))}<p class="note"><a href="#d-\${d.id}" style="color:var(--accent)">Open full condition entry →</a></p></div>\`;
+ el.innerHTML=a.id===b.id?'<p class="note">Choose two different conditions to compare.</p>':\`<div class="two">\${col(a)}\${col(b)}</div>\`;
+}
+
 /* ---------- Search ---------- */
 const IDX=ORDER.map(d=>({d,name:(d.name+" "+(d.aka||"")).toLowerCase(),body:[d.ov,...d.sx,...d.early,...(d.red||[]),...d.dx,...d.tx.flatMap(g=>[g[0],...g[1]]),...(d.upd||[]),...(d.tags||[]),...(DD[d.id]||[]).map(r=>r[0])].join(" • ")}));
 let sel=-1;
@@ -1668,7 +1781,7 @@ function route(){
   document.querySelectorAll(".toplinks a").forEach(a=>a.classList.toggle("on",a.dataset.v===(h||"home")));
   if(h.startsWith("d-")&&D[h.slice(2)])disease(D[h.slice(2)]);
   else if(h.startsWith("a-")&&AREAS.find(a=>a.id===h.slice(2)))area(AREAS.find(a=>a.id===h.slice(2)));
-  else if(h==="symptoms")symptoms(); else if(h==="updates")updates(); else if(h==="about")about(); else home();
+  else if(h==="symptoms")symptoms(); else if(h==="updates")updates(); else if(h==="about")about(); else if(h==="learn")learningCenter(); else if(h==="clinical")clinicalCenter(); else home();
   window.scrollTo(0,0);
 }
 buildSide();
