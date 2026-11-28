@@ -1483,13 +1483,14 @@ DD["autonomic-dysreflexia"]=[
          "ref"  reference only: {ref},
          "news" item with no condition page: {id:null, date, title, text, href}.
    ref is [title, url] of a page actually read. text is a plain sentence in your own words. */
-const SITE_UPDATED = "2026-11-25";
+const SITE_UPDATED = "2026-11-28";
 const WATCH = [
 ["Huntington's disease — AMT-130 gene therapy: FDA target date May 1, 2027","huntingtons"],
-["SCN2A/SCN8A developmental epileptic encephalopathies — relutrigine: FDA target date December 27, 2026",null],
-["Duchenne cardiomyopathy — deramiocel (cell therapy): decision pending as of this update","dmd"]
+["SCN2A/SCN8A developmental epileptic encephalopathies — relutrigine: FDA target date December 27, 2026",null]
 ];
-const WEEKLY = [];
+const WEEKLY = [
+{added:"2026-11-28", id:"dmd", kind:"upd", date:"2026-11-20", text:"FDA rejected Capricor's resubmitted application for deramiocel, an investigational donor heart-cell therapy for Duchenne muscular dystrophy, for the second time (the first was July 2025). FDA said the data did not show substantial evidence of effectiveness and raised data integrity concerns about the pivotal HOPE-3 study. Deramiocel remains unapproved.", ref:["BioPharma Dive: FDA again turns back Capricor Duchenne cell therapy (Nov 21, 2026)","https://www.biopharmadive.com/news/capricor-fda-duchenne-cell-therapy-deramiocel/875384/"]}
+];
 /* ===== WEEKLY-UPDATES-END ===== */
 const D={}, ORDER=[];
 AREAS.forEach(a=>a.subs.forEach(s=>s.diseases.forEach(d=>{d.area=a;d.sub=s;D[d.id]=d;ORDER.push(d);})));
