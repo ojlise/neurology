@@ -1781,8 +1781,8 @@ function route(){
   document.querySelectorAll(".toplinks a").forEach(a=>a.classList.toggle("on",a.dataset.v===(h||"home")));
   if(h.startsWith("d-")&&D[h.slice(2)])disease(D[h.slice(2)]);
   else if(h.startsWith("a-")&&AREAS.find(a=>a.id===h.slice(2)))area(AREAS.find(a=>a.id===h.slice(2)));
-  else if(h==="symptoms")symptoms(); else if(h==="updates")updates(); else if(h==="about")about(); else if(h==="learn")learningCenter(); else if(h==="clinical")clinicalCenter(); else home();
-  window.scrollTo(0,0);
+  else if(h==="symptoms")symptoms(); else if(h==="updates")updates(); else if(h==="about")about(); else if(h==="learn"||h.startsWith("learn-")){learningCenter();if(h.startsWith("learn-"))document.getElementById(h)?.scrollIntoView();} else if(h==="clinical")clinicalCenter(); else home();
+  if(!h.startsWith("learn-"))window.scrollTo(0,0);
 }
 buildSide();
 window.addEventListener("hashchange",route);
