@@ -1661,14 +1661,14 @@ const LEARN_MODULES=[
 ];
 function learningCenter(){
  setTitle("Learning center");markSide(null,null);
- const moduleCards=LEARN_MODULES.map(m=>\`<a class="card" href="#learn-\${m.id}" style="text-decoration:none"><b>\${esc(m.title)}</b><p class="note">\${esc(m.intro)}</p><span class="match">Explore topic →</span></a>\`).join("");
- let h=\`<div class="crumbs"><a href="#home">Home</a>›<span>Learning center</span></div><h1>Learning center</h1><p class="lede">Understand the nervous system from first principles. Every topic starts with a plain-language explanation and then offers a deeper scientific view.</p>
+ const moduleCards=LEARN_MODULES.map(m=>`<a class="card" href="#learn-${m.id}" style="text-decoration:none"><b>${esc(m.title)}</b><p class="note">${esc(m.intro)}</p><span class="match">Explore topic →</span></a>`).join("");
+ let h=`<div class="crumbs"><a href="#home">Home</a>›<span>Learning center</span></div><h1>Learning center</h1><p class="lede">Understand the nervous system from first principles. Every topic starts with a plain-language explanation and then offers a deeper scientific view.</p>
  <div class="card k-upd"><h3>Choose your level</h3><p><b>Foundations:</b> begin with the everyday explanation and key concepts. <b>Scientific depth:</b> continue into pathways, cellular mechanisms and clinical relevance. Both levels are shown together so readers can move between them.</p></div>
- <div class="subhead"><h2>Core subjects</h2><span>\${LEARN_MODULES.length} interconnected modules</span></div><div class="grid">\${moduleCards}</div>
+ <div class="subhead"><h2>Core subjects</h2><span>${LEARN_MODULES.length} interconnected modules</span></div><div class="grid">${moduleCards}</div>
  <h2>Interactive symptom-to-anatomy explorer</h2><p class="note">Choose a symptom pattern to see broad nervous-system locations clinicians may consider. This is a learning aid, not a diagnostic tool.</p>
- <div class="card"><label for="localize" style="font-weight:600;display:block;margin-bottom:8px">Symptom pattern</label><select id="localize" class="chip" style="max-width:100%;border-radius:8px"><option value="weak">One-sided weakness</option><option value="numb">Numbness or tingling</option><option value="vision">Vision change</option><option value="balance">Imbalance or poor coordination</option><option value="memory">Memory or behavior change</option><option value="pain">Burning or electric pain</option></select><div id="localize-result" style="margin-top:14px" aria-live="polite"></div></div>\`;
- LEARN_MODULES.forEach(m=>{h+=\`<section class="card sec" id="learn-\${m.id}" style="margin-top:14px"><h2 style="margin-top:0">\${esc(m.title)}</h2><p class="lede">\${esc(m.intro)}</p><h3>In plain language</h3><p>\${esc(m.plain)}</p><details><summary style="cursor:pointer;font-weight:600;color:var(--accent);padding:8px 0">Scientific depth</summary><p>\${esc(m.detail)}</p></details><h3 style="margin-top:14px">Key topics</h3>\${list(m.topics)}</section>\`;});
- h+=\`<h2>How the topics connect</h2><div class="card"><p><b>Anatomy</b> describes where a process occurs; <b>physiology</b> explains normal function; <b>pathophysiology</b> describes what changes in disease; <b>symptoms and examination</b> reveal the resulting pattern; <b>diagnostics</b> test possible explanations; and <b>treatment</b> targets a cause, mechanism or consequence.</p><p class="note">Scientific explanations evolve. Mechanisms described as emerging or uncertain should not be interpreted as established causes or proven treatment targets.</p></div>\`+disclaimer();
+ <div class="card"><label for="localize" style="font-weight:600;display:block;margin-bottom:8px">Symptom pattern</label><select id="localize" class="chip" style="max-width:100%;border-radius:8px"><option value="weak">One-sided weakness</option><option value="numb">Numbness or tingling</option><option value="vision">Vision change</option><option value="balance">Imbalance or poor coordination</option><option value="memory">Memory or behavior change</option><option value="pain">Burning or electric pain</option></select><div id="localize-result" style="margin-top:14px" aria-live="polite"></div></div>`;
+ LEARN_MODULES.forEach(m=>{h+=`<section class="card sec" id="learn-${m.id}" style="margin-top:14px"><h2 style="margin-top:0">${esc(m.title)}</h2><p class="lede">${esc(m.intro)}</p><h3>In plain language</h3><p>${esc(m.plain)}</p><details><summary style="cursor:pointer;font-weight:600;color:var(--accent);padding:8px 0">Scientific depth</summary><p>${esc(m.detail)}</p></details><h3 style="margin-top:14px">Key topics</h3>${list(m.topics)}</section>`;});
+ h+=`<h2>How the topics connect</h2><div class="card"><p><b>Anatomy</b> describes where a process occurs; <b>physiology</b> explains normal function; <b>pathophysiology</b> describes what changes in disease; <b>symptoms and examination</b> reveal the resulting pattern; <b>diagnostics</b> test possible explanations; and <b>treatment</b> targets a cause, mechanism or consequence.</p><p class="note">Scientific explanations evolve. Mechanisms described as emerging or uncertain should not be interpreted as established causes or proven treatment targets.</p></div>`+disclaimer();
  view.innerHTML=h;drawLocalizer();
  $("#localize").addEventListener("change",drawLocalizer);
 }
@@ -1682,7 +1682,7 @@ function drawLocalizer(){
  memory:["Hippocampal and medial temporal networks, frontal-subcortical circuits, parietal association cortex and distributed networks.","Acute confusion or abrupt change in mental status requires prompt medical evaluation; sudden onset can be an emergency."],
  pain:["Peripheral nociceptors, small or large sensory fibers, dorsal root ganglia, spinal cord, trigeminal pathways and central pain-modulating networks.","New severe headache, thunderclap headache, fever with stiff neck, or pain with new weakness requires urgent evaluation."]
  };
- const x=map[$("#localize").value];el.innerHTML=\`<b>Possible anatomical systems</b><p>\${esc(x[0])}</p><div class="emerg" style="margin-bottom:0"><b>Safety note</b><p style="margin:6px 0 0">\${esc(x[1])}</p></div>\`;
+ const x=map[$("#localize").value];el.innerHTML=`<b>Possible anatomical systems</b><p>${esc(x[0])}</p><div class="emerg" style="margin-bottom:0"><b>Safety note</b><p style="margin:6px 0 0">${esc(x[1])}</p></div>`;
 }
 
 /* ---------- Clinical, diagnostic and research center ---------- */
@@ -1728,12 +1728,12 @@ const RESEARCH=[
 ];
 function clinicalCenter(){
  setTitle("Clinical & research");markSide(null,null);
- let h=\`<div class="crumbs"><a href="#home">Home</a>›<span>Clinical &amp; research</span></div><h1>Clinical &amp; research library</h1><p class="lede">A practical companion to the disease encyclopedia: how neurological conditions are investigated, how treatment classes work, and where to follow emerging evidence.</p>
+ let h=`<div class="crumbs"><a href="#home">Home</a>›<span>Clinical &amp; research</span></div><h1>Clinical &amp; research library</h1><p class="lede">A practical companion to the disease encyclopedia: how neurological conditions are investigated, how treatment classes work, and where to follow emerging evidence.</p>
  <div class="card k-early"><h3>Clinical-use note</h3><p>These summaries are educational, not prescribing guidance. Test selection and medication decisions depend on the clinical question, individual history and current professional guidance. Drug examples are not endorsements.</p></div>
- <h2>Neurological diagnostic tests</h2><div class="grid">\${TESTS.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
- <h2>Medication and treatment classes</h2><p class="note">A mechanism-oriented overview, not a complete formulary. Check current labeling, contraindications, monitoring and local approvals.</p><div class="grid">\${DRUG_CLASSES.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
- <h2>Disease coverage expansion checklist</h2><p class="note">These are priority topics to verify and develop as dedicated, referenced entries in the disease encyclopedia. Their listing here does not imply that every entry is already present.</p><div class="grid">\${COVERAGE.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
- <h2>Emerging therapies &amp; research themes</h2><div class="grid">\${RESEARCH.map(x=>\`<div class="card"><b>\${esc(x[0])}</b><p class="note">\${esc(x[1])}</p></div>\`).join("")}</div>
+ <h2>Neurological diagnostic tests</h2><div class="grid">${TESTS.map(x=>`<div class="card"><b>${esc(x[0])}</b><p class="note">${esc(x[1])}</p></div>`).join("")}</div>
+ <h2>Medication and treatment classes</h2><p class="note">A mechanism-oriented overview, not a complete formulary. Check current labeling, contraindications, monitoring and local approvals.</p><div class="grid">${DRUG_CLASSES.map(x=>`<div class="card"><b>${esc(x[0])}</b><p class="note">${esc(x[1])}</p></div>`).join("")}</div>
+ <h2>Disease coverage expansion checklist</h2><p class="note">These are priority topics to verify and develop as dedicated, referenced entries in the disease encyclopedia. Their listing here does not imply that every entry is already present.</p><div class="grid">${COVERAGE.map(x=>`<div class="card"><b>${esc(x[0])}</b><p class="note">${esc(x[1])}</p></div>`).join("")}</div>
+ <h2>Emerging therapies &amp; research themes</h2><div class="grid">${RESEARCH.map(x=>`<div class="card"><b>${esc(x[0])}</b><p class="note">${esc(x[1])}</p></div>`).join("")}</div>
  <h2>Research and guideline sources</h2><div class="card"><ul class="clean">
  <li><a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" rel="noopener">PubMed</a> — biomedical literature and clinical research.</li>
  <li><a href="https://clinicaltrials.gov/" target="_blank" rel="noopener">ClinicalTrials.gov</a> — registered studies and trial status.</li>
@@ -1744,15 +1744,15 @@ function clinicalCenter(){
  <li><a href="https://www.fda.gov/drugs" target="_blank" rel="noopener">FDA drug information</a> — regulatory and labeling updates.</li>
  </ul><p class="note">For every disease entry, the long-term editorial standard should include a last-reviewed date, evidence level, guideline date, regulatory status and direct primary references. Clinical trial recruitment status should always be checked at the source.</p></div>
  <h2>Interactive disease comparison</h2><p class="note">Compare two conditions already in the NeuroAtlas database. The comparison summarizes their descriptions and symptom lists; it is not a diagnostic ranking.</p>
- <div class="card"><div class="two"><div><label for="compare-a" style="font-weight:600;display:block">First condition</label><select id="compare-a" class="chip" style="width:100%;border-radius:8px">\${ORDER.map(d=>\`<option value="\${d.id}">\${esc(d.name)}</option>\`).join("")}</select></div><div><label for="compare-b" style="font-weight:600;display:block">Second condition</label><select id="compare-b" class="chip" style="width:100%;border-radius:8px">\${ORDER.map((d,i)=>\`<option value="\${d.id}" \${i===1?"selected":""}>\${esc(d.name)}</option>\`).join("")}</select></div></div><div id="compare-result" style="margin-top:14px" aria-live="polite"></div></div>\`+disclaimer();
+ <div class="card"><div class="two"><div><label for="compare-a" style="font-weight:600;display:block">First condition</label><select id="compare-a" class="chip" style="width:100%;border-radius:8px">${ORDER.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("")}</select></div><div><label for="compare-b" style="font-weight:600;display:block">Second condition</label><select id="compare-b" class="chip" style="width:100%;border-radius:8px">${ORDER.map((d,i)=>`<option value="${d.id}" ${i===1?"selected":""}>${esc(d.name)}</option>`).join("")}</select></div></div><div id="compare-result" style="margin-top:14px" aria-live="polite"></div></div>`+disclaimer();
  view.innerHTML=h;drawComparison();
  $("#compare-a").addEventListener("change",drawComparison);$("#compare-b").addEventListener("change",drawComparison);
 }
 function drawComparison(){
  const el=$("#compare-result");if(!el)return;
  const a=D[$("#compare-a").value],b=D[$("#compare-b").value];if(!a||!b)return;
- const col=(d)=>\`<div class="card"><h3>\${esc(d.name)}</h3><p>\${esc(d.ov)}</p><b>Common symptoms described</b>\${list(d.sx.slice(0,8))}<p class="note"><a href="#d-\${d.id}" style="color:var(--accent)">Open full condition entry →</a></p></div>\`;
- el.innerHTML=a.id===b.id?'<p class="note">Choose two different conditions to compare.</p>':\`<div class="two">\${col(a)}\${col(b)}</div>\`;
+ const col=(d)=>`<div class="card"><h3>${esc(d.name)}</h3><p>${esc(d.ov)}</p><b>Common symptoms described</b>${list(d.sx.slice(0,8))}<p class="note"><a href="#d-${d.id}" style="color:var(--accent)">Open full condition entry →</a></p></div>`;
+ el.innerHTML=a.id===b.id?'<p class="note">Choose two different conditions to compare.</p>':`<div class="two">${col(a)}${col(b)}</div>`;
 }
 
 /* ---------- Search ---------- */
