@@ -170,6 +170,11 @@ ol.refs a:hover{text-decoration:underline}
   .brand span{display:none}
   .updlist .u{grid-template-columns:1fr;gap:4px}
 }
+
+.learn-figure{margin:18px 0 22px;padding:12px 14px 10px;background:var(--soft);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.learn-figure img{display:block;width:100%;height:auto;max-height:340px;object-fit:contain}
+.learn-figure figcaption{font-size:12.5px;line-height:1.45;color:var(--muted);margin:8px 4px 0}
+@media(max-width:600px){.learn-figure{padding:8px}.learn-figure img{max-height:260px}}
 </style>
 </head>
 <body>
@@ -1667,7 +1672,7 @@ function learningCenter(){
  <div class="subhead"><h2>Core subjects</h2><span>${LEARN_MODULES.length} interconnected modules</span></div><div class="grid">${moduleCards}</div>
  <h2>Interactive symptom-to-anatomy explorer</h2><p class="note">Choose a symptom pattern to see broad nervous-system locations clinicians may consider. This is a learning aid, not a diagnostic tool.</p>
  <div class="card"><label for="localize" style="font-weight:600;display:block;margin-bottom:8px">Symptom pattern</label><select id="localize" class="chip" style="max-width:100%;border-radius:8px"><option value="weak">One-sided weakness</option><option value="numb">Numbness or tingling</option><option value="vision">Vision change</option><option value="balance">Imbalance or poor coordination</option><option value="memory">Memory or behavior change</option><option value="pain">Burning or electric pain</option></select><div id="localize-result" style="margin-top:14px" aria-live="polite"></div></div>`;
- LEARN_MODULES.forEach(m=>{h+=`<section class="card sec" id="learn-${m.id}" style="margin-top:14px"><h2 style="margin-top:0">${esc(m.title)}</h2><p class="lede">${esc(m.intro)}</p><h3>In plain language</h3><p>${esc(m.plain)}</p><details><summary style="cursor:pointer;font-weight:600;color:var(--accent);padding:8px 0">Scientific depth</summary><p>${esc(m.detail)}</p></details><h3 style="margin-top:14px">Key topics</h3>${list(m.topics)}</section>`;});
+ LEARN_MODULES.forEach(m=>{h+=`<section class="card sec" id="learn-${m.id}" style="margin-top:14px"><h2 style="margin-top:0">${esc(m.title)}</h2><p class="lede">${esc(m.intro)}</p><figure class="learn-figure"><img src="assets/learning-${m.id}.svg" alt="${esc(m.title)} — original educational schematic" loading="lazy"><figcaption>Original schematic for learning. Simplified to highlight key structures and relationships; not to scale and not intended as a diagnostic image.</figcaption></figure><h3>In plain language</h3><p>${esc(m.plain)}</p><details><summary style="cursor:pointer;font-weight:600;color:var(--accent);padding:8px 0">Scientific depth</summary><p>${esc(m.detail)}</p></details><h3 style="margin-top:14px">Key topics</h3>${list(m.topics)}</section>`;});
  h+=`<h2>How the topics connect</h2><div class="card"><p><b>Anatomy</b> describes where a process occurs; <b>physiology</b> explains normal function; <b>pathophysiology</b> describes what changes in disease; <b>symptoms and examination</b> reveal the resulting pattern; <b>diagnostics</b> test possible explanations; and <b>treatment</b> targets a cause, mechanism or consequence.</p><p class="note">Scientific explanations evolve. Mechanisms described as emerging or uncertain should not be interpreted as established causes or proven treatment targets.</p></div>`+disclaimer();
  view.innerHTML=h;drawLocalizer();
  $("#localize").addEventListener("change",drawLocalizer);
